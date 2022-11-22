@@ -4,47 +4,79 @@ Created on Mon Nov 21 14:17:26 2022
 
 @author: tidiane
 """
+
+# import modules
 import networkx as netx
+DG = netx.DiGraph()
+
 import matplotlib.pyplot as plt
 
-#import fctGetCsv 
-#fctGetCsv.getCsv()
+# récup liste
 
-G = netx.Graph()
+liste_brute = []
+liste_brute.append(['A','5','',''])
+liste_brute.append(['B','3','',''])
+liste_brute.append(['C','4','',''])
+liste_brute.append(['D','4','A',''])
+liste_brute.append(['E','5','B',''])
+liste_brute.append(['F','2','C',''])
+liste_brute.append(['G','2','E,D',''])
+liste_brute.append(['H','4','E,F',''])
+#print(liste_brute)
 
-# Algorithme:
+#reconstruction liste pour noeuds simples
+list_rebuilt = []
+#list_rebuilt.append(["Debut",0,''])
+for i in range(len(liste_brute)):
+    (tache_en_cours, delai, predec, option) = liste_brute[i]
+    if len(predec) == 0:
+        list_rebuilt.append([tache_en_cours, delai, 'Debut'])
+    else:
+        predecesseurs = predec.split(',')
+        for j in range(len(predecesseurs)):
+            list_rebuilt.append([tache_en_cours, delai, predecesseurs[j]])
+  
+# identification taches de fin de projet            
+list_sans_suivants = []
+for k in range(len(list_rebuilt)):
+    aucun_suivant = True
+    for s in range(len(list_rebuilt)):
+        if list_rebuilt[k][0] == list_rebuilt[s][2]:
+            aucun_suivant = False
+    if aucun_suivant == True:        
+        list_sans_suivants.append(list_rebuilt[k][0])
+
+#suppression doublons eventuels
+list_sans_suivants = list(set(list_sans_suivants))
+for l in range(len(list_sans_suivants)):
+    list_rebuilt.append(['Fin', 0, list_sans_suivants[l]])
     
-"""
-récupération liste passée en paramètre
-1 - parcours liste et construction noeuds
-variables: liste_edges avec poids = délai tache
+#print(list_sans_suivants)       
+#print("\n")
+#print(list_rebuilt)
 
-1.1 : pour chaque noeud: l'ajouter au graphe
-1.2 : pour chaque noeud: déterminer son prédécesseur et rajouter un arc
-1.3 : pour chaque arc, identifier le noeud de départ et déterminer la durée de la tache
+
+for m in range(len(list_rebuilt)): 
+    #préparation noeud
+    tache_prec = list_rebuilt[m][2]
+    tache_suiv = list_rebuilt[m][0]
     
-"""
+    #poids = int (list_rebuilt[m][1])
+    
+    #ajout de l'arc avec les noeuds
+    DG.add_edge(tache_prec, tache_suiv, label=list_rebuilt[m][1])
+    
+#positionnement affichage
+pos = netx.spring_layout(DG)
+
+#dessin du réseau
+netx.draw_networkx(DG, pos)
+
+#intégration labels
+netx.draw_networkx_edge_labels(DG, pos, edge_labels=netx.get_edge_attributes(DG,'label'))
+
+#affichage final
+plt.show()
+ 
 
 
-G.add_nodes_from([
-    ('A', {"color": "red"}),
-    ('B', {"color": "green"}),
-])
-G.add_edge('A','B',weight=5.0)
-G.add_edge(4,5, weight=3.0)
-netx.draw(G, with_labels=True, font_weight='bold')
-
-
-DG = netx.DiGraph()
-DG.add_weighted_edges_from([(1, 2, 0.5), (3, 1, 0.75)])
-netx.draw(DG, with_labels=True, font_weight='bold')
-
-#G = netx.petersen_graph()
-
-#subax1 = plt.subplot(121)
-#netx.draw(G, with_labels=True, font_weight='bold')
-
-#subax2 = plt.subplot(122)
-#netx.draw_shell(G, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
-
-#fctGetCsv.getCsv()
