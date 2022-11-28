@@ -78,5 +78,35 @@ netx.draw_networkx_edge_labels(DG, pos, edge_labels=netx.get_edge_attributes(DG,
 #affichage final
 plt.show()
  
+#
+#Question 3
+#
+#liste taches par niveaux
+l = netx.single_source_shortest_path_length(DG,'Debut');
+#print(l);
+#liste_taches = l.keys()
+#liste_niveaux = l.values()
 
+nb_niveaux = len(set(l.values()))
+#print (nb_niveaux)
 
+taches_triees_par_niveau = list()
+for i in range(nb_niveaux):
+    tasks = []
+    for key in l:
+        if (l[key] == i):
+            tasks.append(key)
+    taches_triees_par_niveau.append(tasks)
+
+print(taches_triees_par_niveau)
+#print(len(taches_triees_par_niveau))
+
+#predecesseurs
+
+#x=[1,2,3,4,5,6,7,8]
+#y=[1,2,3,4,5,6,7,8]
+
+#plt.plot(x,y)
+#plt.xlabel("Niveaux taches")
+
+#plt.show()
