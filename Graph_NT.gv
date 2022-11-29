@@ -1,0 +1,24 @@
+// test.png
+digraph Graph_NT {
+	subgraph "subgraph" {
+		graph [rank=same]
+		C
+		B
+		A
+	}
+	subgraph "subgraph" {
+		graph [rank=same]
+		F
+		E
+		D
+	}
+	subgraph "subgraph" {
+		graph [rank=same]
+		G
+		H
+	}
+	subgraph "subgraph" {
+		graph [rank=same]
+		Fin
+	}
+}
