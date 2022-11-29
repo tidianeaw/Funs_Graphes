@@ -2,7 +2,7 @@
 """
 Created on Mon Nov 21 14:17:26 2022
 
-@author: tidiane
+@author: Ahmed - Shahram
 """
 ######################################################
 # Question 2
@@ -243,6 +243,61 @@ for key,val in dates_battement.items():
 print("Chemin critique du projet: ")
 print(chemin_critique)
 
+print("\n")
+
 #
 #Question 7: réalisation GANTT
 #
+taches = []
+critique = []
+durees = []
+fin_ptot = []
+delai_debut = []
+preced = []
+
+for key,val in dates_battement.items():
+    taches.append(key)
+    
+    crit = 'blue'
+    if (val[2] == 0):
+        crit= 'red'
+    critique.append(crit)
+    
+    duree_tache = 0
+    predec = ''
+    for j in range(len(liste_brute)):
+        if (liste_brute[j][0] == key):
+            duree_tache = int(liste_brute[j][1])
+            predec = liste_brute[j][2]
+    
+    durees.append(duree_tache)
+    preced.append(predec)
+    
+    fin_plus_tot = val[0]
+    fin_ptot.append(fin_plus_tot)
+    
+    delai_deb = fin_plus_tot - duree_tache
+    delai_debut.append(delai_deb)
+        
+
+
+import pandas as pd
+#import numpy as np
+#import matplotlib
+import matplotlib.pyplot as plt2
+#import datetime as dt
+
+df = pd.DataFrame(
+    {'tache' : taches,                  
+      'duree' : durees,
+      'fin_plus_tot': fin_ptot,
+      'delai_debut' : delai_debut,
+      'preced' : preced,
+      'critique' : critique}
+    )
+
+#print(df)
+
+plt2.barh(y=df['tache'], width=df['duree'], left=df['delai_debut'], color=df['critique'])
+plt.gca().invert_yaxis()
+plt2.show()
