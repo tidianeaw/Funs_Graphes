@@ -115,17 +115,26 @@ class tpGraphes:
     def buildGraphByTaskLevel(self, DG):
         print("Question 3")
         
+        #récupération niveaux et noeuds selon la topologie du graphe
         for niveau, noeuds in enumerate(netx.topological_generations(DG)):
             for noeud in noeuds:
                 DG.nodes[noeud]["layer"] = niveau
-                
-        pos = netx.multipartite_layout(DG,subset_key="layer")
         
+        #récup position par niveau
+        pos = netx.multipartite_layout(DG,subset_key="layer")
+                
+        #création figure et graphe depuis la librairie
         fig, ax = plt.subplots()
+        
+        #reconstruction graphe par niveau, avec les positions des noeuds par niveau
+        #intégration du graphe dans le cadre indiqué
         netx.draw_networkx(DG, pos=pos, ax=ax)
         
-        ax.set_title("Affichage graphe par niveau de taches")
+        #titre graphe et ajustement dans le cadre défini par la variable figure
+        ax.set_title("Affichage graphe par niveau de taches")        
         fig.tight_layout()
+        
+        #affichage final
         plt.show()
         
         """
