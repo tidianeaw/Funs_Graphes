@@ -90,7 +90,7 @@ class tpGraphes:
             delai_tache = list_rebuilt[m][1]
             tache_suiv = list_rebuilt[m][0]
             
-            #ajout de l'arc avec les arcs (noeuds avec leurs liens + délai tache)
+            #ajout de l'arc avec les noeuds (noeuds avec leurs liens + délai tache)
             DG.add_edge(tache_prec, tache_suiv, label=delai_tache)
         
         
@@ -115,6 +115,20 @@ class tpGraphes:
     def buildGraphByTaskLevel(self, DG):
         print("Question 3")
         
+        for niveau, noeuds in enumerate(netx.topological_generations(DG)):
+            for noeud in noeuds:
+                DG.nodes[noeud]["layer"] = niveau
+                
+        pos = netx.multipartite_layout(DG,subset_key="layer")
+        
+        fig, ax = plt.subplots()
+        netx.draw_networkx(DG, pos=pos, ax=ax)
+        
+        ax.set_title("Affichage graphe par niveau de taches")
+        fig.tight_layout()
+        plt.show()
+        
+        """
         #liste taches par niveaux
         l = netx.single_source_shortest_path_length(DG,'Debut');
         #nb niveaux
@@ -193,6 +207,8 @@ class tpGraphes:
         plt.show()
         
         return G
+        """
+        return DG
 
 
     #question 4 - Affichage de graphe
