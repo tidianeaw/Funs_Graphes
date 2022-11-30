@@ -9,11 +9,14 @@ Created on Mon Nov 21 18:16:05 2022
 def getCsv():
     #import module
     import csv
+    
+    print("Le fichier doit être placé dans le même dossier que ce programme\n")
+    
     #demande nom fichier csv
     filename = input("Indiquer le nom de votre fichier CSV:\n")
     
     #demande précision séparateur
-    separateur = input("Indiquer le séparateur de champs CSV:\n")
+    separateur = input("Indiquer le séparateur de champs (, ou ;) CSV:\n")
     
     #demande précision header
     headerInclus = input("Le fichier inclut-il une ligne d'en-tête - réponse O ou N:\n")
@@ -21,23 +24,18 @@ def getCsv():
     #ouverture csv
     with open(filename, 'r') as fichierCSV:
       lecteurCSV = csv.reader(fichierCSV, delimiter=separateur)
-      #remplissage liste
+      #construction liste à partir du contenu
       liste_taches = list(lecteurCSV)
+    
     #parcours liste
     if (headerInclus == 'N'):
+        #le fichier fourni n'inclut pas d'en-tête, on poursuit
         print("CSV sans en-tete\n")
         
     else:
+        #fichier avec en-tête, on supprimer la ligne d'en-tête avant de continuer
         print("Header : " + liste_taches[0] + "\n")
-    
-    #option 1
-    print("Affichage option 1")
-    [print(ligne) for ligne in liste_taches] 
-    print("\n")
-    #option 2
-    print("Affichage option 2")
-    for j in range(len(liste_taches)): 
-        #affichage ligne par ligne
-        print(liste_taches[j])
-    
-    return liste_taches
+        print("Suppression du Header avant poursuite")
+        liste_taches.pop(0)
+        
+    return (filename, liste_taches)

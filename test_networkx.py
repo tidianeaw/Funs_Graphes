@@ -24,7 +24,7 @@ liste_brute.append(['E','5','B',''])
 liste_brute.append(['F','2','C',''])
 liste_brute.append(['G','2','E,D',''])
 liste_brute.append(['H','4','E,F',''])
-#print(liste_brute)
+
 
 #reconstruction liste pour noeuds simples
 list_rebuilt = []
@@ -53,21 +53,17 @@ list_sans_suivants = list(set(list_sans_suivants))
 for l in range(len(list_sans_suivants)):
     list_rebuilt.append(['Fin', 0, list_sans_suivants[l]])
     
-#print(list_sans_suivants)       
-#print("\n")
-#print(list_rebuilt)
-
 
 for m in range(len(list_rebuilt)): 
     #préparation noeud
     tache_prec = list_rebuilt[m][2]
     tache_suiv = list_rebuilt[m][0]
     
-    #poids = int (list_rebuilt[m][1])
-    
     #ajout de l'arc avec les noeuds
     DG.add_edge(tache_prec, tache_suiv, label=list_rebuilt[m][1])
-    
+ 
+print(list_rebuilt)    
+
 #positionnement affichage
 pos = netx.spring_layout(DG)
 
@@ -86,8 +82,10 @@ plt.show()
 ######################################################
 #liste taches par niveaux
 l = netx.single_source_shortest_path_length(DG,'Debut');
+#nb niveaux
 nb_niveaux = len(set(l.values()))
 
+#tri par niveau
 taches_triees_par_niveau = list()
 
 for i in range(nb_niveaux):
@@ -97,12 +95,10 @@ for i in range(nb_niveaux):
             tasks.append(key)
     taches_triees_par_niveau.append(tasks)
 
-#print(taches_triees_par_niveau)
-#print(len(taches_triees_par_niveau))
-
-# reprise donnees graphe précédent
+# reprise donnees graphe précédent, notamment les delais
 old_edge_labels = netx.get_edge_attributes(DG,'label')
 
+#on dessine notre nouveau graphe par niveau
 G = netx.DiGraph()
 G.add_nodes_from(DG.nodes)
 G.add_edges_from(DG.edges, label=old_edge_labels)
@@ -110,14 +106,16 @@ G.add_edges_from(DG.edges, label=old_edge_labels)
 #calcul positions selon le niveau
 #initialisation positions
 posit = dict()
+#pos_y: en ordonnée, pos_x en abscisse
+#glissement vers la droite
 pos_y = 0
 pos_x = 0
 
 #calcul position noeud debut
 succ_0 = len(list(DG.successors("Debut")))
 prec_0 = len(list(DG.predecessors("Debut")))
-
 posit['Debut'] = (pos_x, 2*succ_0-2)
+
 pos_x = 2
 
 #parcours excluant les noeuds Debut et Fin
@@ -161,7 +159,7 @@ plt.title("Taches par niveau")
 plt.show()
 
 #
-#Question 4: Affichage Graph
+#Question 4: Affichage Graphe
 #
 
 
@@ -170,13 +168,11 @@ plt.show()
 #
 #initialisations
 dates_battement = dict()
-#noeud - fin plus tot - fin plus tard - battement
+#structure: noeud - fin plus tot - fin plus tard - battement
 nodes = list(G.nodes)
 edges = G.edges
 edge_attr = netx.get_edge_attributes(G, 'label')
-#print(nodes)
-#print(edges)
-#print (edge_attr)
+
 #parcours noeuds et calcul dates fin au plus tôt
 for i in range(len(nodes)):
     #pour chaque noeud calcul date au plus tôt
@@ -281,13 +277,13 @@ for key,val in dates_battement.items():
         
 
 
-import pandas as pd
+import pandas as pda
 #import numpy as np
 #import matplotlib
-import matplotlib.pyplot as plt2
+#import matplotlib.pyplot as plt2
 #import datetime as dt
 
-df = pd.DataFrame(
+df = pda.DataFrame(
     {'tache' : taches,                  
       'duree' : durees,
       'fin_plus_tot': fin_ptot,
@@ -298,6 +294,6 @@ df = pd.DataFrame(
 
 #print(df)
 
-plt2.barh(y=df['tache'], width=df['duree'], left=df['delai_debut'], color=df['critique'])
+plt.barh(y=df['tache'], width=df['duree'], left=df['delai_debut'], color=df['critique'])
 plt.gca().invert_yaxis()
-plt2.show()
+plt.show()
