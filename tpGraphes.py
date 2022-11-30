@@ -101,6 +101,7 @@ class tpGraphes:
         netx.draw_networkx_edge_labels(DG, pos, edge_labels=netx.get_edge_attributes(DG,'label'))
 
         #affichage final
+        plt.title("Taches génériques du projet")
         plt.show()
         
         return DG
@@ -334,6 +335,7 @@ class tpGraphes:
         plt.barh(y=df['tache'], width=df['duree'], left=df['delai_debut'], color=df['critique'])
         #inversion en Y pour afficher les taches du haut vers le bas
         plt.gca().invert_yaxis()
+        plt.title("Diagramme de GANTT du projet")
         plt.show()
         
         
