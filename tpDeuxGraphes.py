@@ -82,7 +82,7 @@ class tpDeuxGraphes:
             G.add_edge(source, destination, label=label_arc)
             
             #positionnement affichage
-            pos = netx.spring_layout(G)
+            pos = self.getCityPositions()
 
             #dessin du réseau avec le graphe orienté à la position indiquée
             netx.draw_networkx(G, pos)
@@ -95,20 +95,51 @@ class tpDeuxGraphes:
             plt.show()
             
             return G
-            
-            
-            
-            
+     
+    #récupèrer les positions des villes
+    def getCityPositions(self):
+        #on initialise une variable de type dict
+        myPos = dict()
+        #format: clé=noeud, valeurs=posx, posy
         
-        
+        #on parcourt le tableau des positions
+        for p in range(self.tbPositions):
+            key = self.tbPositions[p][0]
+            val = (self.tbPositions[p][1], self.tbPositions[p][1])
+            #on rajoute au dictionnaire
+            myPos[key]=val
+            
+        return myPos
+       
+    
+    
     #Partie A - Question 3: 
     #prend en entrée le tableau contenant 
     #les informations du fichier TP2-liaison.csv,
     #le chemin vers l’image carte.jpg et le graphe généré, 
     #et affiche le graphe sur la carte de France
     def buildGraphOnMap(self)   :
-        return 1
+        #les arcs, noeuds sont créés aux bonnes positions en Q2 buildGraphLiaisons
         
+        #on initialise une figure avec comme fond le Jpeg fourni        
+        img = plt.imread(self.fichierJpeg)
+        
+        fig, ax = plt.subplots()
+        ax.imshow(img)
+        
+        #on y rajoute le graphe de Q2 buildGraphLiaisons        
+        #intégration du graphe dans le cadre indiqué
+        netx.draw_networkx(self.buildGraphLiaisons(), pos=self.getCityPositions(), ax=ax)
+        
+        #titre graphe et ajustement dans le cadre défini par la variable figure
+        ax.set_title("Affichage graphe - Carte France")        
+        fig.tight_layout()
+        
+        #ajustement de la figure avec les bonnes dimensions
+        plt.rcParams["figure.figsize"] = (60,15)
+        
+        #affichage final
+        plt.show()
         
         
         
