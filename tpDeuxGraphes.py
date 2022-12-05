@@ -73,7 +73,7 @@ class tpDeuxGraphes:
             destination = self.tbLiaisons[a][1]
             
             #type = ce sera une contrainte
-            typeChemin = self.tbLiaisons[a][2]
+            #typeChemin = self.tbLiaisons[a][2]
             
             #print(source+"-"+destination+"-"+typeChemin + "\n")
             
@@ -81,32 +81,20 @@ class tpDeuxGraphes:
             #duree = self.tbLiaisons[a][3]
             #cout = self.tbLiaisons[a][4]
             
-            #label des arcs
-            label_arc = ''
+            #label des arcs            
             #label_arc = typeChemin + " - " + duree + " mn - " + cout + "€"
-            #on rajoute l'arc            
-            #G.add_edge(source, destination)
-            col = 'red'
-            if (typeChemin.strip() != "a".strip()):
-                col='green'
-            colors.append(col)
             
-            G.add_edge(source, destination, color=col, width=6.0)
+            #on rajoute l'arc                     
+            G.add_edge(source, destination, width=6.0)
                                  
         #positionnement affichage
         pos = self.getCityPositions()
 
-        """
-        #dessin du réseau avec le graphe orienté à la position indiquée
-        netx.draw_networkx(G, pos, font_size=13, edge_color=colors)
-        
-        #on intégre les noeuds avec leur couleur par défaut
-        netx.draw_networkx_nodes(G, pos, node_size=100, node_color='#00b4d9') 
-
-        #on intègre la couleur attendue pour les autoroutes et départementales        
-        netx.draw_networkx_edges(G, width=6.0,edge_color=colors,pos=pos)
-        """
+        #définition des couleurs selon le type de voie: autoroute=rouge, autres=vert
         cols = []        
+        #servira à stocker les couleurs pour le graphe
+        
+        #parcours liste des arcs et recherche du type pour chacun => fixation couleur
         edge_list = G.edges()
         for edge in edge_list:
             src = edge[0]
@@ -116,27 +104,25 @@ class tpDeuxGraphes:
             if (tp == "d"):
                 col = "g"
             cols.append(col)
-            
-        netx.draw(G, node_color='b', font_size=13, pos=pos, edge_color=cols, width=5, with_labels=True)
-                
-        netx.set_edge_attributes(G, colors, "color")
-        
+           
+        #construction du graphe avec les couleurs d'arc attendues
+        netx.draw(G, node_color='b', node_size=300, font_size=13, pos=pos, edge_color=cols, width=6, with_labels=True)
+                        
         #intégration des labels sur les arcs (edges)
         #netx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=netx.get_edge_attributes(G,'label'))
         
         #affichage final        
         plt.title("Liaisons routières en France")
-        #plt.gca().invert_yaxis()
         plt.show()
-        
-        #print(colors)
         
         return G
     
         
-    #determiner type chemin noeud
+    #determiner le type de chemin d'un arc
     def getTypeChemin(self, src, dst):
         tp = "d"
+        #graphe non orienté, on considère les 2 options
+        #la source et la destination peuvent s'intervertir
         for a in range(len(self.tbLiaisons)):
             if (self.tbLiaisons[a][0].strip() == src.strip() and self.tbLiaisons[a][1].strip() == dst.strip()):
                 tp = self.tbLiaisons[a][2]
@@ -146,7 +132,7 @@ class tpDeuxGraphes:
         return tp
     
     
-    #récupèrer les positions des villes
+    #récupèration des positions des villes
     def getCityPositions(self):
         #on initialise une variable de type dict
         myPos = dict()
@@ -166,7 +152,6 @@ class tpDeuxGraphes:
             #on rajoute au dictionnaire                        
             myPos.__setitem__(key,val)
         
-        #print(myPos)
         return myPos
        
     
@@ -195,9 +180,7 @@ class tpDeuxGraphes:
         
         #ajustement de la figure avec les bonnes dimensions
         plt.rcParams["figure.figsize"] = (60,15)
-        
-        #plt.gca().invert_yaxis()
-        
+                        
         #affichage final
         plt.show()
         
@@ -234,6 +217,9 @@ else:
             #on crée notre objet principal
             tp = tpDeuxGraphes(jpegFile, fPos, fLiais, tbPos, tbLiais)
             
+            #
+            #Partie A
+            #
             #Réponse Question A1
             print("Positions trouvées dans le CSV fourni: " + tp.fichierPositions + "|n")
             tp.showPositions()
@@ -249,3 +235,9 @@ else:
             #Réponse Question A3
             print("Graphe sur la carte")
             tp.buildGraphOnMap()
+            
+            #
+            #Partie B
+            #
+            
+            
