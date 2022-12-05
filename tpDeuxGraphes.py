@@ -21,11 +21,9 @@ Construction du diagramme de GANTT
 #import des bonnes librairies
 #
 #networkx pour la génération de graphes
-#import networkx as netx
+import networkx as netx
 #pyplot pour l'affichage de graphes
-#import matplotlib.pyplot as plt
-#import biblio pandas pour la gestion des datagrids
-#import pandas as pda
+import matplotlib.pyplot as plt
 #
 
 
@@ -61,8 +59,46 @@ class tpDeuxGraphes:
     #les informations du fichier TP2-liaison.csv,
     #retourne le graphe correspondant.
     def buildGraphLiaisons(self):
-        return 1
+        #on construit un graphe vide
+        G = netx.Graph()
         
+        #on parcourt les liaisons et on construit des arcs
+        for a in range(self.tbLiaisons):
+            #noeuds source et destination
+            source = self.tbLiaisons[a][0]
+            destination = self.tbLiaisons[a][1]
+            
+            #type = ce sera une contrainte
+            typeChemin = self.tbLiaisons[a][2]
+            
+            #paramètres pour l'optimisation: durée ou cout
+            duree = self.tbLiaisons[a][3]
+            cout = self.tbLiaisons[a][4]
+            
+            #label des arcs
+            label_arc = typeChemin + " - " + duree + " mn - " + cout + "€"
+            
+            #on rajoute l'arc
+            G.add_edge(source, destination, label=label_arc)
+            
+            #positionnement affichage
+            pos = netx.spring_layout(G)
+
+            #dessin du réseau avec le graphe orienté à la position indiquée
+            netx.draw_networkx(G, pos)
+
+            #intégration des labels sur les arcs (edges)
+            netx.draw_networkx_edge_labels(G, pos, edge_labels=netx.get_edge_attributes(G,'label'))
+
+            #affichage final
+            plt.title("Liaisons routières en France")
+            plt.show()
+            
+            return G
+            
+            
+            
+            
         
         
     #Partie A - Question 3: 
@@ -103,7 +139,7 @@ else:
             #Données correctement fournies
             
             #on crée notre objet principal
-            tp = tpDeuxGraphes(jpegFile, fPos, fLiais, tbPos, tbLias)
+            tp = tpDeuxGraphes(jpegFile, fPos, fLiais, tbPos, tbLiais)
             
             #Réponse Question A1
             print("Positions trouvées dans le CSV fourni: " + tp.fichierPositions + "|n")
@@ -115,4 +151,5 @@ else:
             
             #Réponse Question A2
             print("Construction du graphe depuis les liaisons indiquées \n")
+            tp.buildGraphLiaisons()
             
