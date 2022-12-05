@@ -5,6 +5,17 @@ Created on Mon Nov 21 14:43:56 2022
 @Author: Ahmed & Shahram
 @Group: FCTI 22-23
 @Org: IMT Nord Europe
+
+Demande et récupération fichier CSV
+Parsing du fichier CSV
+Stockage du contenu dans un tableau
+Construction du graphe générique 
+A partir du graphe générique, détermination de la liste des taches par niveau
+Construction du graphe par niveau
+Détermination des marges et battements pour chaque tache
+Calcul du chemin critique
+Construction du diagramme de GANTT
+
 """
 
 #
@@ -391,7 +402,7 @@ class tpGraphes:
         #la largeur de la barre horizontale = duree tache
         #le début de la barre horizontale = délai debut de la tache
         #code couleur criticité pour la couleur de la barre (rouge = critique)
-        plt.barh(y=df['tache'], width=df['duree'], left=df['delai_debut'], color=df['critique'])
+        plt.barh(y=df['tache'], height=0.5, width=df['duree'], left=df['delai_debut'], color=df['critique'])
         
         #inversion en Y pour afficher les taches du haut vers le bas
         plt.gca().invert_yaxis()
