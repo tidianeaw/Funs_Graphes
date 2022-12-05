@@ -25,7 +25,7 @@ def getCsv():
     with open(filename, 'r') as fichierCSV:
       lecteurCSV = csv.reader(fichierCSV, delimiter=separateur)
       #construction liste à partir du contenu
-      liste_taches = list(lecteurCSV)
+      donnees = list(lecteurCSV)
     
     #parcours liste
     if (headerInclus == 'N'):
@@ -34,8 +34,9 @@ def getCsv():
         
     else:
         #fichier avec en-tête, on supprimer la ligne d'en-tête avant de continuer
-        print("Header : " + liste_taches[0] + "\n")
+        print("Header : \n")
+        print(donnees[0])
         print("Suppression du Header avant poursuite")
-        liste_taches.pop(0)
+        donnees.pop(0)
         
-    return (filename, liste_taches)
+    return (filename, donnees)
