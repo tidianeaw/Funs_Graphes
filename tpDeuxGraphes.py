@@ -86,24 +86,29 @@ class tpDeuxGraphes:
             #label_arc = typeChemin + " - " + duree + " mn - " + cout + "€"
             #on rajoute l'arc            
             #G.add_edge(source, destination)
-            col = 'r'
-            if typeChemin.strip() != "a":
-                col='g'
+            col = 'red'
+            if (typeChemin.strip() != "a".strip()):
+                col='green'
             colors.append(col)
             
-            G.add_edge(source, destination, color=col, width=2.0)
+            G.add_edge(source, destination, color=col, width=6.0)
                                  
         #positionnement affichage
         pos = self.getCityPositions()
 
+        """
         #dessin du réseau avec le graphe orienté à la position indiquée
-        netx.draw_networkx(G, pos, font_size=13)
+        netx.draw_networkx(G, pos, font_size=13, edge_color=colors)
         
         #on intégre les noeuds avec leur couleur par défaut
         netx.draw_networkx_nodes(G, pos, node_size=100, node_color='#00b4d9') 
 
-        #on intègre la couleur attendue pour les autoroutes et départementales
-        netx.draw_networkx_edges(G,edge_color=colors,pos=pos)
+        #on intègre la couleur attendue pour les autoroutes et départementales        
+        netx.draw_networkx_edges(G, width=6.0,edge_color=colors,pos=pos)
+        """
+        
+        netx.draw(G, node_color='b', font_size=13, pos=pos, edge_color=colors, width=6, with_labels=True)
+        netx.set_edge_attributes(G, colors, "color")
         
         #intégration des labels sur les arcs (edges)
         #netx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=netx.get_edge_attributes(G,'label'))
