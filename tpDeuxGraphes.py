@@ -106,8 +106,19 @@ class tpDeuxGraphes:
         #on intègre la couleur attendue pour les autoroutes et départementales        
         netx.draw_networkx_edges(G, width=6.0,edge_color=colors,pos=pos)
         """
-        
-        netx.draw(G, node_color='b', font_size=13, pos=pos, edge_color=colors, width=6, with_labels=True)
+        cols = []        
+        edge_list = G.edges()
+        for edge in edge_list:
+            src = edge[0]
+            dst = edge[1]
+            tp = self.getTypeChemin(src, dst)
+            col = "r"
+            if (tp == "d"):
+                col = "g"
+            cols.append(col)
+            
+        netx.draw(G, node_color='b', font_size=13, pos=pos, edge_color=cols, width=5, with_labels=True)
+                
         netx.set_edge_attributes(G, colors, "color")
         
         #intégration des labels sur les arcs (edges)
@@ -121,7 +132,20 @@ class tpDeuxGraphes:
         #print(colors)
         
         return G
-     
+    
+        
+    #determiner type chemin noeud
+    def getTypeChemin(self, src, dst):
+        tp = "d"
+        for a in range(len(self.tbLiaisons)):
+            if (self.tbLiaisons[a][0].strip() == src.strip() and self.tbLiaisons[a][1].strip() == dst.strip()):
+                tp = self.tbLiaisons[a][2]
+            else:
+                if (self.tbLiaisons[a][1].strip() == src.strip() and self.tbLiaisons[a][0].strip() == dst.strip()):
+                    tp = self.tbLiaisons[a][2]
+        return tp
+    
+    
     #récupèrer les positions des villes
     def getCityPositions(self):
         #on initialise une variable de type dict
@@ -164,7 +188,7 @@ class tpDeuxGraphes:
         #on y rajoute le graphe de Q2 buildGraphLiaisons        
         #intégration du graphe dans le cadre indiqué
         netx.draw_networkx(self.buildGraphLiaisons(), pos=self.getCityPositions(), ax=ax)
-        
+                   
         #titre graphe et ajustement dans le cadre défini par la variable figure
         ax.set_title("Affichage graphe - Carte France")        
         fig.tight_layout()
