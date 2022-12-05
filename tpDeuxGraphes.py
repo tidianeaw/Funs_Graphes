@@ -63,7 +63,8 @@ class tpDeuxGraphes:
         G = netx.Graph()
         
         #on parcourt les liaisons et on construit des arcs
-        for a in range(self.tbLiaisons):
+        
+        for a in range(len(self.tbLiaisons)):
             #noeuds source et destination
             source = self.tbLiaisons[a][0]
             destination = self.tbLiaisons[a][1]
@@ -76,25 +77,33 @@ class tpDeuxGraphes:
             cout = self.tbLiaisons[a][4]
             
             #label des arcs
-            label_arc = typeChemin + " - " + duree + " mn - " + cout + "€"
-            
-            #on rajoute l'arc
-            G.add_edge(source, destination, label=label_arc)
-            
-            #positionnement affichage
-            pos = self.getCityPositions()
+            label_arc = ''
+            #label_arc = typeChemin + " - " + duree + " mn - " + cout + "€"
+            #on rajoute l'arc            
+            #G.add_edge(source, destination)
+            if typeChemin == 'a':
+                col='blue'
+            else:
+                col='red'
+            G.add_edge(source, destination, label=label_arc, color=col)
+                                 
+        #positionnement affichage
+        pos = self.getCityPositions()
 
-            #dessin du réseau avec le graphe orienté à la position indiquée
-            netx.draw_networkx(G, pos)
+        #dessin du réseau avec le graphe orienté à la position indiquée
+        netx.draw_networkx(G, pos, font_size=10)
+        
+        netx.draw_networkx_nodes(G, pos, node_size=100, node_color='#00b4d9') 
 
-            #intégration des labels sur les arcs (edges)
-            netx.draw_networkx_edge_labels(G, pos, edge_labels=netx.get_edge_attributes(G,'label'))
-
-            #affichage final
-            plt.title("Liaisons routières en France")
-            plt.show()
-            
-            return G
+        #intégration des labels sur les arcs (edges)
+        netx.draw_networkx_edge_labels(G, pos, font_size=9, edge_labels=netx.get_edge_attributes(G,'label'))
+        
+        #affichage final        
+        plt.title("Liaisons routières en France")
+        #plt.gca().invert_yaxis()
+        plt.show()
+        
+        return G
      
     #récupèrer les positions des villes
     def getCityPositions(self):
@@ -103,12 +112,20 @@ class tpDeuxGraphes:
         #format: clé=noeud, valeurs=posx, posy
         
         #on parcourt le tableau des positions
-        for p in range(self.tbPositions):
+        for p in range(len(self.tbPositions)):
+            #clé = ville
             key = self.tbPositions[p][0]
-            val = (self.tbPositions[p][1], self.tbPositions[p][1])
-            #on rajoute au dictionnaire
-            myPos[key]=val
             
+            #valeur = (pos_x, pos_y)
+            #attention au cast
+            pos_x = int(self.tbPositions[p][1])
+            pos_y = int(self.tbPositions[p][2])
+            val = (pos_x,pos_y)
+            
+            #on rajoute au dictionnaire                        
+            myPos.__setitem__(key,val)
+        
+        #print(myPos)
         return myPos
        
     
@@ -138,6 +155,8 @@ class tpDeuxGraphes:
         #ajustement de la figure avec les bonnes dimensions
         plt.rcParams["figure.figsize"] = (60,15)
         
+        #plt.gca().invert_yaxis()
+        
         #affichage final
         plt.show()
         
@@ -152,9 +171,11 @@ class tpDeuxGraphes:
 jpegFile = input("Donner le nom du fichier Jpeg: ")
 
 #Demande fichier CSV et stockage données dans les variables filename et positions
+print("Fournir le fichier CSV pour les positions des villes sur la carte \n")
 (fPos, tbPos) = fctGetCsv.getCsv()
 
 #Demande fichier CSV et stockage données dans les variables filename et positions
+print("Fournir le fichier CSV pour les liaisons entre villes \n")
 (fLiais, tbLiais) = fctGetCsv.getCsv()
 
 if (not jpegFile):
@@ -184,3 +205,6 @@ else:
             print("Construction du graphe depuis les liaisons indiquées \n")
             tp.buildGraphLiaisons()
             
+            #Réponse Question A3
+            print("Graphe sur la carte")
+            tp.buildGraphOnMap()
