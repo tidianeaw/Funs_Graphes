@@ -64,6 +64,9 @@ class tpDeuxGraphes:
         
         #on parcourt les liaisons et on construit des arcs
         
+        #couleurs: autoroute = rouge, departementale = vert
+        colors = []
+        
         for a in range(len(self.tbLiaisons)):
             #noeuds source et destination
             source = self.tbLiaisons[a][0]
@@ -72,36 +75,45 @@ class tpDeuxGraphes:
             #type = ce sera une contrainte
             typeChemin = self.tbLiaisons[a][2]
             
+            #print(source+"-"+destination+"-"+typeChemin + "\n")
+            
             #paramètres pour l'optimisation: durée ou cout
-            duree = self.tbLiaisons[a][3]
-            cout = self.tbLiaisons[a][4]
+            #duree = self.tbLiaisons[a][3]
+            #cout = self.tbLiaisons[a][4]
             
             #label des arcs
             label_arc = ''
             #label_arc = typeChemin + " - " + duree + " mn - " + cout + "€"
             #on rajoute l'arc            
             #G.add_edge(source, destination)
-            if typeChemin == 'a':
-                col='blue'
-            else:
-                col='red'
-            G.add_edge(source, destination, label=label_arc, color=col)
+            col = 'r'
+            if typeChemin.strip() != "a":
+                col='g'
+            colors.append(col)
+            
+            G.add_edge(source, destination, color=col, width=2.0)
                                  
         #positionnement affichage
         pos = self.getCityPositions()
 
         #dessin du réseau avec le graphe orienté à la position indiquée
-        netx.draw_networkx(G, pos, font_size=10)
+        netx.draw_networkx(G, pos, font_size=13)
         
+        #on intégre les noeuds avec leur couleur par défaut
         netx.draw_networkx_nodes(G, pos, node_size=100, node_color='#00b4d9') 
 
+        #on intègre la couleur attendue pour les autoroutes et départementales
+        netx.draw_networkx_edges(G,edge_color=colors,pos=pos)
+        
         #intégration des labels sur les arcs (edges)
-        netx.draw_networkx_edge_labels(G, pos, font_size=9, edge_labels=netx.get_edge_attributes(G,'label'))
+        #netx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=netx.get_edge_attributes(G,'label'))
         
         #affichage final        
         plt.title("Liaisons routières en France")
         #plt.gca().invert_yaxis()
         plt.show()
+        
+        #print(colors)
         
         return G
      
