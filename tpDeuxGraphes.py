@@ -184,15 +184,106 @@ class tpDeuxGraphes:
         #affichage final
         plt.show()
         
-        
-        
+    #récupérer la durée associée à un chemin
+    def getDuree(self, src, dst):
+        duree = 0
+        #graphe non orienté, on considère les 2 options
+        #la source et la destination peuvent s'intervertir
+        for a in range(len(self.tbLiaisons)):
+            if (self.tbLiaisons[a][0].strip() == src.strip() and self.tbLiaisons[a][1].strip() == dst.strip()):
+                duree = self.tbLiaisons[a][3]
+            else:
+                if (self.tbLiaisons[a][1].strip() == src.strip() and self.tbLiaisons[a][0].strip() == dst.strip()):
+                    duree = self.tbLiaisons[a][3]
+        return duree
+    
+    #récupérer le cout associé à un chemin
+    def getCout(self, src, dst):
+        cout = 0
+        #graphe non orienté, on considère les 2 options
+        #la source et la destination peuvent s'intervertir
+        for a in range(len(self.tbLiaisons)):
+            if (self.tbLiaisons[a][0].strip() == src.strip() and self.tbLiaisons[a][1].strip() == dst.strip()):
+                cout = self.tbLiaisons[a][4]
+            else:
+                if (self.tbLiaisons[a][1].strip() == src.strip() and self.tbLiaisons[a][0].strip() == dst.strip()):
+                    cout = self.tbLiaisons[a][4]
+        return cout
+    
     #Partie B - Question 1:
     #Prend en entree un graphe
-    #Retour: True si oui, False sinon
+    #Retour: 3-uplet (Boolean connexe ou non, Arbre minimal, Poids arbre min)
     #Rappel: graphe connexe si pour tout UV, il existe un chemin de U à V
     #Rappel: graphe connexe ssi contient un arbre couvrant (passe par tous les sommets)
-    def grapheConnexe(G):
-        return False
+    #option: pour travailler avec la durée (1) ou le coût (2)  
+    def grapheConnexe(self,G,option):                          
+        #on va construire un arbre
+        H = netx.Graph() 
+        #autres valeurs de retour
+        arbre_trouve = False
+        poids_min = 0
+        
+        #récup liste des arcs
+        edge_list = list(G.edges())
+        print(edge_list)
+        
+        for j in range(len(edge_list)):
+            
+            (noeud1, noeud2)=edge_list[j]  
+            
+            if (option == 1):
+                #durée
+                poids = self.getDuree(noeud1, noeud2)
+            else:
+                #cout
+                poids = self.getCout(noeud1, noeud2)
+                
+            H.add_edge(noeud1, noeud2, weight=poids, width=9.0)
+            #s'il n'y a pas de cycle, on poursuit
+            #sinon on supprime cet arc
+            
+            if netx.cycle_basis(H)!=[]:
+                H.remove_edge(noeud1, noeud2)
+
+        #on parcourt l'arbre pour calculer le poids minimal
+        
+        liste_noeuds_en_cours = list(H.edges(data='weight')) 
+        print(liste_noeuds_en_cours)
+        for i in range(len(liste_noeuds_en_cours)):
+            (src,dest,w)=liste_noeuds_en_cours[i]
+            poids_min = poids_min + int(w)
+            
+        print("L'arbre couvrant minimal est ", poids_min)
+        
+        nb_noeuds_arbre_kruskal = len(H.nodes())
+        nb_noeuds_graphe_source = len(G.nodes())
+        
+        
+        if (nb_noeuds_arbre_kruskal == nb_noeuds_graphe_source):
+            arbre_trouve = True
+        
+        #Retour = 3-uplet: Boolean connexe ou non, Arbre minimal, Poids arbre min
+        valeur_retour = (arbre_trouve, H, poids_min)
+        
+        #on positionne l'arbre sur la carte de France
+        img = plt.imread(self.fichierJpeg)        
+        fig, ax = plt.subplots()
+        ax.imshow(img)
+                      
+        #intégration du graphe dans le cadre indiqué avec la carte
+        netx.draw_networkx(H, pos=self.getCityPositions(), ax=ax)
+                   
+        #titre graphe et ajustement dans le cadre défini par la variable figure
+        ax.set_title("Arbre couvrant min sur la carte du pays")        
+        fig.tight_layout()
+        
+        #ajustement de la figure avec les bonnes dimensions
+        plt.rcParams["figure.figsize"] = (60,15)
+                        
+        plt.show()
+        
+        return valeur_retour
+        
 
 
 #Première étape: demande fichiers
@@ -235,7 +326,7 @@ else:
             
             #Réponse Question A2
             print("Construction du graphe depuis les liaisons indiquées \n")
-            tp.buildGraphLiaisons()
+            grapheLiaisons = tp.buildGraphLiaisons()
             
             #Réponse Question A3
             print("Graphe sur la carte")
@@ -248,5 +339,13 @@ else:
             #Question 1 - Vérification si graphe connexe ou pas
             #Prend en entree un graphe
             #Retour: True si oui, False sinon
-            
+            print("Vérification si graphe connexe - Travail sur la durée (1) ou le cout(2)")
+            print("\n")
+            option = int(input("Donner l'option 1 pour la durée et 2 pour le coût: "))
+            retour = tp.grapheConnexe(grapheLiaisons, option)
+            if (retour[0] == True):
+                print("Le graphe est connexe avec un arbre couvrant minimal ")
+                print("\n")
+                print("Poids de l'arbre: ")
+                print(retour[2])
             
