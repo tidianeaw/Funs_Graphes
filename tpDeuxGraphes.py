@@ -187,7 +187,12 @@ class tpDeuxGraphes:
         
         
     #Partie B - Question 1:
-        
+    #Prend en entree un graphe
+    #Retour: True si oui, False sinon
+    #Rappel: graphe connexe si pour tout UV, il existe un chemin de U à V
+    #Rappel: graphe connexe ssi contient un arbre couvrant (passe par tous les sommets)
+    def grapheConnexe(G):
+        return False
 
 
 #Première étape: demande fichiers
@@ -239,5 +244,9 @@ else:
             #
             #Partie B
             #
+            
+            #Question 1 - Vérification si graphe connexe ou pas
+            #Prend en entree un graphe
+            #Retour: True si oui, False sinon
             
             

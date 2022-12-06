@@ -68,7 +68,7 @@ class tpGraphes:
         list_rebuilt = []
         #list_rebuilt.append(["Debut",0,''])
         for i in range(len(self.listeTaches)):
-            (tache_en_cours, delai, predec, option) = self.listeTaches[i]
+            (tache_en_cours, delai, predec) = self.listeTaches[i]
             if len(predec) == 0:
                 list_rebuilt.append([tache_en_cours, delai, 'Debut'])
             else:
