@@ -24,8 +24,10 @@ Construction du diagramme de GANTT
 import networkx as netx
 #pyplot pour l'affichage de graphes
 import matplotlib.pyplot as plt
-#
-
+#random pour les nbres aléatoires
+import random as rand
+#pour les opérations de tri
+from operator import itemgetter
 
 #import des fonctions développées
 import fctGetCsv
@@ -45,7 +47,14 @@ class tpDeuxGraphes:
         self.fichierLiaisons = fLiaisons
         self.tbPositions = tbP
         self.tbLiaisons = tbL
+    
         
+    def getfichierPositions(self):
+        return self.fichierPositions
+    
+    def getfichierLiaisons(self):
+        return self.fichierLiaisons
+    
     #Partie A - Question 1: 
     #Retourner les données fournies sous forme de tableau
     def showPositions(self):
@@ -210,49 +219,67 @@ class tpDeuxGraphes:
                     cout = self.tbLiaisons[a][4]
         return cout
     
-    #Partie B - Question 1:
+    #Partie B - Question 1: vérifier si un graphe est connexe ou non - avec l'algo de Kruskal
     #Prend en entree un graphe
+    #Paramètres:
+        #G = graphe à vérifier
+        #option = base de calcul des poids: durée ou coût+péage
     #Retour: 3-uplet (Boolean connexe ou non, Arbre minimal, Poids arbre min)
+        #is_connexe = booléen
+        #H: schématisation de l'arbre trouvé sur la carte indiquee
+        #poids min: poids de l'arbre trouvé
     #Rappel: graphe connexe si pour tout UV, il existe un chemin de U à V
     #Rappel: graphe connexe ssi contient un arbre couvrant (passe par tous les sommets)
     #option: pour travailler avec la durée (1) ou le coût (2)  
-    def grapheConnexe(self,G,option):                          
+    def grapheConnexeKruskal(self,G,option):                          
         #on va construire un arbre
         H = netx.Graph() 
         #autres valeurs de retour
         arbre_trouve = False
         poids_min = 0
         
-        #récup liste des arcs
-        edge_list = list(G.edges())
-        #print(edge_list)
+        #récupération des arcs du graphe fourni = ensemble A
+        arcsBase = G.edges()
+        
+        #construction d'un autre ensemble
+        #on rajoute la donnée du poids dans les arcs depuis tbLiaisons
+        arcs = []
+        for arc in arcsBase:
+            (src,dst) = arc
+            #récup donnée poids
+            if (option == 1):
+                #durée
+                poids = int(self.getDuree(src, dst))
+            else:
+                #cout
+                poids = float(self.getCout(src, dst))
+            
+            #rajout de l'item dans notre liste
+            newArc=[src,dst,poids]
+            arcs.append(newArc)
+        #tri de la liste des arcs par poids croissant
+        edge_list = sorted(arcs, key=itemgetter(2))    
         
         for j in range(len(edge_list)):
             
-            (noeud1, noeud2)=edge_list[j]  
-            
-            if (option == 1):
-                #durée
-                poids = self.getDuree(noeud1, noeud2)
-            else:
-                #cout
-                poids = self.getCout(noeud1, noeud2)
-                
+            (noeud1, noeud2, poids)=edge_list[j]                          
             H.add_edge(noeud1, noeud2, weight=poids, width=9.0)
             #s'il n'y a pas de cycle, on poursuit
             #sinon on supprime cet arc
             
             if netx.cycle_basis(H)!=[]:
                 H.remove_edge(noeud1, noeud2)
+            else:
+                poids_min = poids_min + poids
 
         #on parcourt l'arbre pour calculer le poids minimal
-        
+        """
         liste_noeuds_en_cours = list(H.edges(data='weight')) 
         #print(liste_noeuds_en_cours)
         for i in range(len(liste_noeuds_en_cours)):
             (src,dest,w)=liste_noeuds_en_cours[i]
             poids_min = poids_min + int(w)
-            
+        """    
         print("L'arbre couvrant minimal est ", poids_min)
         
         nb_noeuds_arbre_kruskal = len(H.nodes())
@@ -274,7 +301,7 @@ class tpDeuxGraphes:
         netx.draw_networkx(H, pos=self.getCityPositions(), ax=ax)
                    
         #titre graphe et ajustement dans le cadre défini par la variable figure
-        ax.set_title("Arbre couvrant min sur la carte du pays")        
+        ax.set_title("Arbre couvrant min sur la carte du pays - Kruskal")        
         fig.tight_layout()
         
         #ajustement de la figure avec les bonnes dimensions
@@ -283,8 +310,133 @@ class tpDeuxGraphes:
         plt.show()
         
         return valeur_retour
-        
 
+        
+    ##Partie B - Question 1: vérifier si un graphe est connexe ou non - avec l'algorithme de Prim
+    #Détermine avec l'algo de Prim un arbre couvrant minimal pour le graphe en paramètre
+    #Paramètres:
+        #G = graphe à vérifier
+        #option = base de calcul des poids: durée ou coût+péage
+    #retour = 3-uplet(arbre_trouve, H, poids_min)
+        #is_connexe = booléen
+        #H: schématisation de l'arbre trouvé sur la carte indiquee
+        #poids min: poids de l'arbre trouvé
+    #
+    def grapheConnexePrim(self,G,option):
+        #
+        #On initialise l'algo
+        #récupération des noeuds du graphe fourni = ensemble N
+        noeuds = list(G.nodes())
+        nbNoeudsInitial = len(noeuds)
+        
+        #récupération des arcs du graphe fourni = ensemble A
+        arcsBase = G.edges()
+        
+        #construction d'un autre ensemble
+        #on rajoute la donnée du poids dans les arcs depuis tbLiaisons
+        arcs = []
+        for arc in arcsBase:
+            (src,dst) = arc
+            #récup donnée poids
+            if (option == 1):
+                #durée
+                poids = int(self.getDuree(src, dst))
+            else:
+                #cout
+                poids = float(self.getCout(src, dst))
+            
+            #rajout de l'item dans notre liste
+            newArc=[src,dst,int(poids)]
+            arcs.append(newArc)
+        #tri de la liste des arcs par poids croissant
+        lstArcs = sorted(arcs, key=itemgetter(2))        
+        
+        #on crée un graphe vide H
+        H = netx.Graph() 
+        
+        #
+        #Déroulé de l'algo
+        poids_min = 0
+        #on choisit au hasard un noeud de début nDebut
+        while (len(noeuds) > 1):
+            randomIndex = rand.randrange(0,len(noeuds)-1)
+            nDebut = noeuds.pop(randomIndex)
+            
+            for i in range(len(lstArcs)):
+                #on récupère dans l'ensemble A des arcs ceux pour qui il y a un link avec nDebut
+                sousEnsemble = []
+                #if (lstArcs[i][0] == nDebut or lstArcs[i][1] == nDebut):
+                if (lstArcs[i][0] == nDebut):
+                    sousEnsemble.append(lstArcs[i])
+                #ce sera notre ensemble B
+                
+                for j in range (len(sousEnsemble) > 0):            
+                    #tant qu'un arc existe dans B et qu'il n'y pas de cycle, on le rajoute à H
+                    noeud1 = sousEnsemble[j][0]
+                    noeud2 = sousEnsemble[j][1]
+                    poids = sousEnsemble[j][2]
+                    H.add_edge(noeud1, noeud2, weight=poids, width=9.0)
+                    
+                    if netx.cycle_basis(H)!=[]:
+                        H.remove_edge(noeud1, noeud2)
+                    else:
+                        poids_min = poids_min + poids
+                    #notre nDebut devient maintenant le noeud terminal de l'arbre créé jusqu'ici
+                    #nDebut = noeud2    
+                    
+                #puis on supprime cet arc de l'ensemble A
+                #lstArcs.pop(i)                
+                                        
+        #on vérifie que le nombre de noeuds du graphe H = cardinal(N)
+        #si oui graphe connexe, sinon non
+        estConnexe = False
+        if (len(H.nodes()) == nbNoeudsInitial):
+            estConnexe = True            
+        
+        #on crée une figure pour y placer la carte
+        #Retour = 3-uplet: Boolean connexe ou non, Arbre minimal, Poids arbre min
+        valeur_retour = (estConnexe, H, poids_min)
+        
+        #on positionne l'arbre sur la carte de France
+        img = plt.imread(self.fichierJpeg)        
+        fig, ax = plt.subplots()
+        ax.imshow(img)
+                      
+        #intégration du graphe dans le cadre indiqué avec la carte
+        netx.draw_networkx(H, pos=self.getCityPositions(), ax=ax)
+                   
+        #titre graphe et ajustement dans le cadre défini par la variable figure
+        ax.set_title("Arbre couvrant min sur la carte du pays - Prim")        
+        fig.tight_layout()
+        
+        #ajustement de la figure avec les bonnes dimensions
+        plt.rcParams["figure.figsize"] = (60,15)
+                        
+        plt.show()
+        
+        return valeur_retour
+
+
+   #Partie B-Q2 - Ecrire une fonction qui prend en entrée un graphe 
+   #retourne le meilleur chemin (le plus court) entre deux villes (sans contraintes)
+   
+   #Partie B-Q3. Ecrire une fonction qui prend en entrée un graphe 
+   #retourne le meilleur chemin (le moins cher) entre deux villes (sans contraintes)
+   
+   
+   #Partie B-Q4. Ecrire une fonction qui prend en entrée un graphe 
+   #retourne le meilleur chemin (le plus court) entre deux villes (sans passer par des autoroutes)
+   
+   
+   #Partie B-Q5. Ecrire une fonction qui prend en entrée un graphe 
+   #retourne le meilleur chemin (le moins cher) entre deux villes (sans passer par des départementales)
+   
+   #Partie B-Q6. Ecrire une fonction qui prend en entrée un ensemble de sommet, 
+   #affiche le chemin en couleur sur la carte, ainsi que la durée et le côut total du trajet.
+    
+    
+    
+    
 
 #Première étape: demande fichiers
 #jpeg
@@ -349,9 +501,9 @@ else:
                 
             print("Poursuite de la recherche\n")    
             
-            retour = tp.grapheConnexe(grapheLiaisons, option)
+            retour = tp.grapheConnexeKruskal(grapheLiaisons, option)
             if (retour[0] == True):
-                print("Le graphe est connexe avec un arbre couvrant")
+                print("Le graphe est connexe avec un arbre couvrant - Algo Kruskal")
                 print("\n")
                 print("Poids de l'arbre: ")
                 print(retour[2])
@@ -360,7 +512,7 @@ else:
                 else:
                     print(" €")
                 print("\n")
-                print("Longueur du chemin (nombre de tronçons de Ville à Ville: ")
+                print("Longueur du chemin (nombre de tronçons de ville à ville: ")
                 edgeCount = len(list(retour[1].edges()))
                 print(edgeCount)
                 print("\nNombre de villes traversées: ")
@@ -371,5 +523,75 @@ else:
             else:
                 print("Le graphe n'est pas connexe \n ")
                 print("\n")
+                print("Poids de l'arbre: ")
+                print(retour[2])
+                if (option == 1):
+                    print(" mn")
+                else:
+                    print(" €")
+                print("\n")
+                print("Longueur du chemin (nombre de tronçons de ville à ville: ")
+                edgeCount = len(list(retour[1].edges()))
+                print(edgeCount)
+                print("\nNombre de villes traversées: ")
+                nodeCount = len(list(retour[1].nodes()))
+                print(nodeCount)
+                print("\n")
                 
-            #Question 2
+            #Question 1 bis
+            retour = tp.grapheConnexePrim(grapheLiaisons, option)
+            if (retour[0] == True):
+                print("Le graphe est connexe avec un arbre couvrant - Algo Prim")
+                print("\n")
+                print("Poids de l'arbre: ")
+                print(retour[2])
+                if (option == 1):
+                    print(" mn")
+                else:
+                    print(" €")
+                print("\n")
+                print("Longueur du chemin (nombre de tronçons de ville à ville: ")
+                edgeCount = len(list(retour[1].edges()))
+                print(edgeCount)
+                print("\nNombre de villes traversées: ")
+                nodeCount = len(list(retour[1].nodes()))
+                print(nodeCount)
+                print("\n")
+                
+            else:
+                print("Le graphe n'est pas connexe \n ")
+                print("\n")
+                print("Poids de l'arbre: ")
+                print(retour[2])
+                if (option == 1):
+                    print(" mn")
+                else:
+                    print(" €")
+                print("\n")
+                print("Longueur du chemin (nombre de tronçons de ville à ville: ")
+                edgeCount = len(list(retour[1].edges()))
+                print(edgeCount)
+                print("\nNombre de villes traversées: ")
+                nodeCount = len(list(retour[1].nodes()))
+                print(nodeCount)
+                print("\n")
+            
+            
+            #Question 2 - Ecrire une fonction qui prend en entrée un graphe 
+            #retourne le meilleur chemin (le plus court) entre deux villes (sans contraintes)
+            
+            #Question 3. Ecrire une fonction qui prend en entrée un graphe 
+            #retourne le meilleur chemin (le moins cher) entre deux villes (sans contraintes)
+            
+            
+            #Question 4. Ecrire une fonction qui prend en entrée un graphe 
+            #retourne le meilleur chemin (le plus court) entre deux villes (sans passer par des autoroutes)
+            
+            
+            #Question 5. Ecrire une fonction qui prend en entrée un graphe 
+            #retourne le meilleur chemin (le moins cher) entre deux villes (sans passer par des départementales)
+            
+            #Question 6. Ecrire une fonction qui prend en entrée un ensemble de sommet, 
+            #affiche le chemin en couleur sur la carte, ainsi que la durée et le côut total du trajet.
+            
+            
