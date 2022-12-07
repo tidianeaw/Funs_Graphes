@@ -225,7 +225,7 @@ class tpDeuxGraphes:
         
         #récup liste des arcs
         edge_list = list(G.edges())
-        print(edge_list)
+        #print(edge_list)
         
         for j in range(len(edge_list)):
             
@@ -248,7 +248,7 @@ class tpDeuxGraphes:
         #on parcourt l'arbre pour calculer le poids minimal
         
         liste_noeuds_en_cours = list(H.edges(data='weight')) 
-        print(liste_noeuds_en_cours)
+        #print(liste_noeuds_en_cours)
         for i in range(len(liste_noeuds_en_cours)):
             (src,dest,w)=liste_noeuds_en_cours[i]
             poids_min = poids_min + int(w)
@@ -342,10 +342,34 @@ else:
             print("Vérification si graphe connexe - Travail sur la durée (1) ou le cout(2)")
             print("\n")
             option = int(input("Donner l'option 1 pour la durée et 2 pour le coût: "))
+            if (int(option) == 1):
+                print("Vous avez choisi de travailler sur la base de la durée \n")                
+            else:
+                print("Vous avez choisi de travailler sur la base du coût + péage\n")
+                
+            print("Poursuite de la recherche\n")    
+            
             retour = tp.grapheConnexe(grapheLiaisons, option)
             if (retour[0] == True):
-                print("Le graphe est connexe avec un arbre couvrant minimal ")
+                print("Le graphe est connexe avec un arbre couvrant")
                 print("\n")
                 print("Poids de l'arbre: ")
                 print(retour[2])
-            
+                if (option == 1):
+                    print(" mn")
+                else:
+                    print(" €")
+                print("\n")
+                print("Longueur du chemin (nombre de tronçons de Ville à Ville: ")
+                edgeCount = len(list(retour[1].edges()))
+                print(edgeCount)
+                print("\nNombre de villes traversées: ")
+                nodeCount = len(list(retour[1].nodes()))
+                print(nodeCount)
+                print("\n")
+                
+            else:
+                print("Le graphe n'est pas connexe \n ")
+                print("\n")
+                
+            #Question 2
