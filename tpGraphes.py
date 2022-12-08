@@ -414,8 +414,6 @@ class tpGraphes:
         
         
         
-
-
 #Première etape: interaction avec l'utilisateur
 #Demande fichier CSV et stockage données dans les variables filename et taches
 (filename, taches) = fctGetCsv.getCsv()

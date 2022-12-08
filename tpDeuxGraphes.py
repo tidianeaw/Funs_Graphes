@@ -322,7 +322,7 @@ class tpDeuxGraphes:
         #H: schématisation de l'arbre trouvé sur la carte indiquee
         #poids min: poids de l'arbre trouvé
     #
-    def grapheConnexePrim(self,G,option):
+    def grapheConnexePrim(self, G, option):
         #
         #On initialise l'algo
         #récupération des noeuds du graphe fourni = ensemble N
@@ -417,27 +417,38 @@ class tpDeuxGraphes:
         return valeur_retour
 
 
-   #Partie B-Q2 - Ecrire une fonction qui prend en entrée un graphe 
-   #retourne le meilleur chemin (le plus court) entre deux villes (sans contraintes)
-   
-   #Partie B-Q3. Ecrire une fonction qui prend en entrée un graphe 
-   #retourne le meilleur chemin (le moins cher) entre deux villes (sans contraintes)
-   
-   
-   #Partie B-Q4. Ecrire une fonction qui prend en entrée un graphe 
-   #retourne le meilleur chemin (le plus court) entre deux villes (sans passer par des autoroutes)
-   
-   
-   #Partie B-Q5. Ecrire une fonction qui prend en entrée un graphe 
-   #retourne le meilleur chemin (le moins cher) entre deux villes (sans passer par des départementales)
-   
-   #Partie B-Q6. Ecrire une fonction qui prend en entrée un ensemble de sommet, 
-   #affiche le chemin en couleur sur la carte, ainsi que la durée et le côut total du trajet.
+    #Partie B-Q2 - Ecrire une fonction qui prend en entrée un graphe 
+    #retourne le meilleur chemin (le plus court) entre deux villes (sans contraintes)
+    def meilleurTrajetParDuree(self, G):
+       return True 
+    
+    
+    #Partie B-Q3. Ecrire une fonction qui prend en entrée un graphe 
+    #retourne le meilleur chemin (le moins cher) entre deux villes (sans contraintes)
+    def meilleurCheminParCout(self, G):
+       return True    
+    
+    
+    #Partie B-Q4. Ecrire une fonction qui prend en entrée un graphe 
+    #retourne le meilleur chemin (le plus court) entre deux villes (sans passer par des autoroutes)
+    def meilleurCheminParDureeSansRunway(self, G):
+       return True       
+    
+    
+    #Partie B-Q5. Ecrire une fonction qui prend en entrée un graphe 
+    #retourne le meilleur chemin (le moins cher) entre deux villes (sans passer par des départementales)
+    def meilleurCheminParDureeSansDepart(self, G):
+       return True     
+    
+    
+    #Partie B-Q6. Ecrire une fonction qui prend en entrée un ensemble de sommet, 
+    #affiche le chemin en couleur sur la carte, ainsi que la durée et le côut total du trajet.
+    def printCheminDureeCout(self,vertexList):
+       return True       
     
     
     
     
-
 #Première étape: demande fichiers
 #jpeg
 jpegFile = input("Donner le nom du fichier Jpeg: ")
