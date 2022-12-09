@@ -263,7 +263,7 @@ class tpDeuxGraphes:
         for j in range(len(edge_list)):
             
             (noeud1, noeud2, poids)=edge_list[j]                          
-            H.add_edge(noeud1, noeud2, weight=poids, width=9.0)
+            H.add_edge(noeud1, noeud2, weight=poids, width=12.0)
             #s'il n'y a pas de cycle, on poursuit
             #sinon on supprime cet arc
             
@@ -271,15 +271,7 @@ class tpDeuxGraphes:
                 H.remove_edge(noeud1, noeud2)
             else:
                 poids_min = poids_min + poids
-
-        #on parcourt l'arbre pour calculer le poids minimal
-        """
-        liste_noeuds_en_cours = list(H.edges(data='weight')) 
-        #print(liste_noeuds_en_cours)
-        for i in range(len(liste_noeuds_en_cours)):
-            (src,dest,w)=liste_noeuds_en_cours[i]
-            poids_min = poids_min + int(w)
-        """    
+ 
         print("L'arbre couvrant minimal est ", poids_min)
         
         nb_noeuds_arbre_kruskal = len(H.nodes())
@@ -298,7 +290,7 @@ class tpDeuxGraphes:
         ax.imshow(img)
                       
         #intégration du graphe dans le cadre indiqué avec la carte
-        netx.draw_networkx(H, pos=self.getCityPositions(), ax=ax)
+        netx.draw_networkx(H, pos=self.getCityPositions(), ax=ax, width=6)
                    
         #titre graphe et ajustement dans le cadre défini par la variable figure
         ax.set_title("Arbre couvrant min sur la carte du pays - Kruskal")        
@@ -403,7 +395,7 @@ class tpDeuxGraphes:
         ax.imshow(img)
                       
         #intégration du graphe dans le cadre indiqué avec la carte
-        netx.draw_networkx(H, pos=self.getCityPositions(), ax=ax)
+        netx.draw_networkx(H, pos=self.getCityPositions(), ax=ax, width=6)
                    
         #titre graphe et ajustement dans le cadre défini par la variable figure
         ax.set_title("Arbre couvrant min sur la carte du pays - Prim")        
@@ -419,34 +411,109 @@ class tpDeuxGraphes:
 
     #Partie B-Q2 - Ecrire une fonction qui prend en entrée un graphe 
     #retourne le meilleur chemin (le plus court) entre deux villes (sans contraintes)
-    def meilleurTrajetParDuree(self, G):
-       return True 
+    def meilleurTrajetParDuree(self, G, noeud1, noeud2):
+        for edge in G.edges():
+            (src,dst) = edge
+            duree = self.getDuree(src, dst)            
+            netx.set_edge_attributes(G, int(duree), "duree")
+        G.edges(data=True)
+        bestPath = netx.shortest_path(G, source=noeud1, target=noeud2, weight="duree", method="dijkstra")
+        return bestPath 
     
     
     #Partie B-Q3. Ecrire une fonction qui prend en entrée un graphe 
     #retourne le meilleur chemin (le moins cher) entre deux villes (sans contraintes)
-    def meilleurCheminParCout(self, G):
-       return True    
+    def meilleurTrajetParCout(self, G, noeud1, noeud2):
+        for edge in G.edges():
+            (src,dst) = edge
+            cout = self.getCout(src, dst)            
+            netx.set_edge_attributes(G, float(cout), "cout")
+        G.edges(data=True)
+        bestPath = netx.shortest_path(G, source=noeud1, target=noeud2, weight="cout", method="dijkstra")
+        return bestPath 
     
     
     #Partie B-Q4. Ecrire une fonction qui prend en entrée un graphe 
     #retourne le meilleur chemin (le plus court) entre deux villes (sans passer par des autoroutes)
-    def meilleurCheminParDureeSansRunway(self, G):
-       return True       
-    
+    def meilleurTrajetParDureeSansRunway(self, G, noeud1, noeud2):
+        try:
+            G2 = G
+            for edge in G2.edges():
+               (src,dst) = edge
+               tp = self.getTypeChemin(src, dst)
+               if (tp == "a"):
+                   G2.remove_edge(src, dst)
+            G2.edges(data=True)
+            bestPath = netx.shortest_path(G2, source=noeud1, target=noeud2, weight="duree", method="dijkstra")
+            return bestPath 
+        except netx.NetworkXNoPath:
+            pass
+            return []
     
     #Partie B-Q5. Ecrire une fonction qui prend en entrée un graphe 
     #retourne le meilleur chemin (le moins cher) entre deux villes (sans passer par des départementales)
-    def meilleurCheminParDureeSansDepart(self, G):
-       return True     
+    def meilleurCheminParDureeSansDepartementale(self, G, noeud1, noeud2):
+        try:
+            G2 = G
+            for edge in G2.edges():
+               (src,dst) = edge
+               tp = self.getTypeChemin(src, dst)
+               if (tp == "d"):
+                   G2.remove_edge(src, dst)
+            G2.edges(data=True)
+            bestPath = netx.shortest_path(G2, source=noeud1, target=noeud2, weight="cout", method="dijkstra")
+            return bestPath 
+        except netx.NetworkXNoPath:
+            pass
+            return []
     
     
     #Partie B-Q6. Ecrire une fonction qui prend en entrée un ensemble de sommet, 
     #affiche le chemin en couleur sur la carte, ainsi que la durée et le côut total du trajet.
-    def printCheminDureeCout(self,vertexList):
-       return True       
-    
-    
+    def printCheminDureeCout(self,G,path,src,dst):        
+         
+         #on crée un graphe vide H
+         H = netx.Graph()        
+         for node in G.nodes():
+             H.add_node(node)
+        
+         #Calcul cout et durée du chemin
+         duree = 0
+         cout = 0.0
+         listeNoeuds = list(path)
+         listeArcs = []
+         for i in range(len(listeNoeuds)-1):
+            s = listeNoeuds[i]
+            d = listeNoeuds[i+1]
+            coutTroncon = float(self.getCout(s, d))
+            dureeTroncon = int(self.getDuree(s, d))
+            cout = cout + coutTroncon
+            duree = duree + dureeTroncon            
+            edge = [s,d]
+            listeArcs.append(edge)
+
+            H.add_edge(s, d, width=9.0)
+         
+         #on positionne l'arbre sur la carte de France
+         img = plt.imread(self.fichierJpeg)        
+         fig, ax = plt.subplots()
+         ax.imshow(img)
+                       
+         #intégration du graphe dans le cadre indiqué avec la carte
+         netx.draw_networkx(H, pos=self.getCityPositions(), ax=ax, width=6)
+
+         #titre graphe et ajustement dans le cadre défini par la variable figure
+         titre = "Chemin entre " + src + " et " + dst + "\n"
+         titre = titre + "Cout: " + str(cout) + " € - Duree = " + str(duree) + "mn"
+         ax.set_title(titre)        
+         fig.tight_layout()
+       
+         #ajustement de la figure avec les bonnes dimensions
+         plt.rcParams["figure.figsize"] = (60,15)
+                       
+         plt.show()
+        
+         return H
     
     
 #Première étape: demande fichiers
@@ -590,19 +657,43 @@ else:
             
             #Question 2 - Ecrire une fonction qui prend en entrée un graphe 
             #retourne le meilleur chemin (le plus court) entre deux villes (sans contraintes)
-            
+            src = input("Donner le nom de la ville Source (tiré du CSV Position): ")
+            dst = input("Donner le nom de la ville Destination (tiré du CSV Position): ")
+            retourCheminDuree = tp.meilleurTrajetParDuree(grapheLiaisons,src,dst)
+            print("Meilleur chemin par durée: ")
+            print(retourCheminDuree)
+            print("\n")
             #Question 3. Ecrire une fonction qui prend en entrée un graphe 
             #retourne le meilleur chemin (le moins cher) entre deux villes (sans contraintes)
-            
+            retourCheminCout = tp.meilleurTrajetParCout(grapheLiaisons,src,dst)
+            print("Meilleur chemin par coût+péage: ")
+            print(retourCheminCout)
+            print("\n")
             
             #Question 4. Ecrire une fonction qui prend en entrée un graphe 
             #retourne le meilleur chemin (le plus court) entre deux villes (sans passer par des autoroutes)
+            retourCheminDepartementales = tp.meilleurTrajetParDureeSansRunway(grapheLiaisons,src,dst)
+            print("Meilleur chemin sans autoroute : ")
+            if (len(retourCheminDepartementales)):
+                print(retourCheminDepartementales)
+            else:
+                print("Pas de chemin trouvé sans passer par des autoroutes")
+            print("\n")
             
             
             #Question 5. Ecrire une fonction qui prend en entrée un graphe 
             #retourne le meilleur chemin (le moins cher) entre deux villes (sans passer par des départementales)
+            retourCheminAutoroutes = tp.meilleurCheminParDureeSansDepartementale(grapheLiaisons,src,dst)
+            print("Meilleur chemin sans autoroute : ")
+            if (len(retourCheminAutoroutes)):
+                print(retourCheminAutoroutes)
+            else:
+                print("Pas de chemin trouvé sans passer par des départementales")  
+            print("\n")
             
             #Question 6. Ecrire une fonction qui prend en entrée un ensemble de sommet, 
             #affiche le chemin en couleur sur la carte, ainsi que la durée et le côut total du trajet.
+            path = retourCheminDuree   
+            tp.printCheminDureeCout(grapheLiaisons,path,src,dst)
             
             
