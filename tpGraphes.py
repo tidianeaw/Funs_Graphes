@@ -67,8 +67,12 @@ class tpGraphes:
         #reconstruction liste pour noeuds simples
         list_rebuilt = []
         #list_rebuilt.append(["Debut",0,''])
-        for i in range(len(self.listeTaches)):
-            (tache_en_cours, delai, predec) = self.listeTaches[i]
+        for i in range(len(self.listeTaches)):            
+            if (len(self.listeTaches[i]) > 3):
+                (tache_en_cours, delai, predec, options) = self.listeTaches[i]
+            else:
+                (tache_en_cours, delai, predec) = self.listeTaches[i]
+            
             if len(predec) == 0:
                 list_rebuilt.append([tache_en_cours, delai, 'Debut'])
             else:
@@ -109,7 +113,7 @@ class tpGraphes:
         pos = netx.spring_layout(DG)
 
         #dessin du réseau avec le graphe orienté à la position indiquée
-        netx.draw_networkx(DG, pos)
+        netx.draw_networkx(DG, pos, width=2.0, font_size=14, node_size=400)
 
         #intégration des labels sur les arcs (edges)
         netx.draw_networkx_edge_labels(DG, pos, edge_labels=netx.get_edge_attributes(DG,'label'))
@@ -146,9 +150,14 @@ class tpGraphes:
         fig.tight_layout()
         
         #affichage final
+        plt.rcParams["figure.figsize"] = (60,15)
         plt.show()
         
-        """
+        return DG
+
+    
+    def buildGraphByTaskLevelWithoutNetx(self, DG):
+        print("Question 3")        
         #Deuxieme methode: codage manuel depuis single_source_shortest_path_length
         #liste taches par niveaux
         l = netx.single_source_shortest_path_length(DG,'Debut');
@@ -221,15 +230,16 @@ class tpGraphes:
         netx.set_edge_attributes(G, old_edge_labels, 'label')        
 
         #nouveau graphe
-        netx.draw_networkx(G, pos=posit, with_labels = True, arrows=True) 
+        netx.draw_networkx(G, pos=posit, with_labels = True, arrows=True, width=2.0, font_size=14, node_size=400) 
         netx.draw_networkx_edge_labels(G, pos, edge_labels=old_edge_labels,label_pos=0.5,font_color='red')
 
         plt.title("Taches par niveau")
+        plt.rcParams["figure.figsize"] = (60,15)
         plt.show()
         
+        
         return G
-        """
-        return DG
+        
 
 
     #question 4 - Affichage de graphe
@@ -441,6 +451,7 @@ else:
     #Question 3
     #on construit le graphe par niveau
     graphByLevel = tp.buildGraphByTaskLevel(directedGraph)
+    graphByLevel2 = tp.buildGraphByTaskLevelWithoutNetx(directedGraph)
     
     #Question 4
     #Déjà prise en charge dans les questions 2 et 3 
