@@ -26,14 +26,14 @@ import networkx as netx
 import matplotlib.pyplot as plt
 #random pour les nbres aléatoires
 import random as rand
-#pour les opérations de tri
+#pour les opérations de tri sur les listes et tableaux
 from operator import itemgetter
 
 #import des fonctions développées
 import fctGetCsv
 
 class tpDeuxGraphes:
-    #attributs
+    #attributs: jpeg file - fichiers csv - données brutes positions et liaisons villes
     fichierJpeg = ''
     fichierPositions = ''
     fichierLiaisons = ''
@@ -72,10 +72,7 @@ class tpDeuxGraphes:
         G = netx.Graph()
         
         #on parcourt les liaisons et on construit des arcs
-        
-        #couleurs: autoroute = rouge, departementale = vert
-        colors = []
-        
+                        
         for a in range(len(self.tbLiaisons)):
             #noeuds source et destination
             source = self.tbLiaisons[a][0]
@@ -102,6 +99,7 @@ class tpDeuxGraphes:
         #définition des couleurs selon le type de voie: autoroute=rouge, autres=vert
         cols = []        
         #servira à stocker les couleurs pour le graphe
+        #couleurs: autoroute = rouge, departementale = vert
         
         #parcours liste des arcs et recherche du type pour chacun => fixation couleur
         edge_list = G.edges()
@@ -131,7 +129,8 @@ class tpDeuxGraphes:
     def getTypeChemin(self, src, dst):
         tp = "d"
         #graphe non orienté, on considère les 2 options
-        #la source et la destination peuvent s'intervertir
+        #la source et la destination peuvent s'intervertir, le graphe n'est pas orienté
+        #parcours jusqu'à découverte des noeuds source et destination        
         for a in range(len(self.tbLiaisons)):
             if (self.tbLiaisons[a][0].strip() == src.strip() and self.tbLiaisons[a][1].strip() == dst.strip()):
                 tp = self.tbLiaisons[a][2]
@@ -200,30 +199,30 @@ class tpDeuxGraphes:
         #la source et la destination peuvent s'intervertir
         for a in range(len(self.tbLiaisons)):
             if (self.tbLiaisons[a][0].strip() == src.strip() and self.tbLiaisons[a][1].strip() == dst.strip()):
-                duree = self.tbLiaisons[a][3]
+                duree =int(self.tbLiaisons[a][3])
             else:
                 if (self.tbLiaisons[a][1].strip() == src.strip() and self.tbLiaisons[a][0].strip() == dst.strip()):
-                    duree = self.tbLiaisons[a][3]
+                    duree = int(self.tbLiaisons[a][3])
         return duree
     
-    #récupérer le cout associé à un chemin
+    #récupérer le cout+péage associé à un chemin
     def getCout(self, src, dst):
-        cout = 0
+        cout = 0.00
         #graphe non orienté, on considère les 2 options
         #la source et la destination peuvent s'intervertir
         for a in range(len(self.tbLiaisons)):
             if (self.tbLiaisons[a][0].strip() == src.strip() and self.tbLiaisons[a][1].strip() == dst.strip()):
-                cout = self.tbLiaisons[a][4]
+                cout = float(self.tbLiaisons[a][4])
             else:
                 if (self.tbLiaisons[a][1].strip() == src.strip() and self.tbLiaisons[a][0].strip() == dst.strip()):
-                    cout = self.tbLiaisons[a][4]
+                    cout = float(self.tbLiaisons[a][4])
         return cout
     
     #Partie B - Question 1: vérifier si un graphe est connexe ou non - avec l'algo de Kruskal
     #Prend en entree un graphe
     #Paramètres:
         #G = graphe à vérifier
-        #option = base de calcul des poids: durée ou coût+péage
+        #option = base de calcul du poids: la durée ou le coût+péage des tronçons
     #Retour: 3-uplet (Boolean connexe ou non, Arbre minimal, Poids arbre min)
         #is_connexe = booléen
         #H: schématisation de l'arbre trouvé sur la carte indiquee
@@ -257,16 +256,19 @@ class tpDeuxGraphes:
             #rajout de l'item dans notre liste
             newArc=[src,dst,poids]
             arcs.append(newArc)
+        
         #tri de la liste des arcs par poids croissant
         edge_list = sorted(arcs, key=itemgetter(2))    
         
-        for j in range(len(edge_list)):
-            
+        #parcours de la liste triée des arcs
+        #on les rajoute un à un: en cas de création de cycle, on saute l'arc
+        for j in range(len(edge_list)):            
+            #initialisation arc à intégrer à l'arbre
             (noeud1, noeud2, poids)=edge_list[j]                          
             H.add_edge(noeud1, noeud2, weight=poids, width=12.0)
-            #s'il n'y a pas de cycle, on poursuit
-            #sinon on supprime cet arc
             
+            #s'il n'y a pas de cycle, on poursuit
+            #sinon on supprime cet arc            
             if netx.cycle_basis(H)!=[]:
                 H.remove_edge(noeud1, noeud2)
             else:
@@ -277,7 +279,7 @@ class tpDeuxGraphes:
         nb_noeuds_arbre_kruskal = len(H.nodes())
         nb_noeuds_graphe_source = len(G.nodes())
         
-        
+        #on s'assure que l'arbre passe par tous les noeuds du graphe
         if (nb_noeuds_arbre_kruskal == nb_noeuds_graphe_source):
             arbre_trouve = True
         
@@ -296,9 +298,8 @@ class tpDeuxGraphes:
         ax.set_title("Arbre couvrant min sur la carte du pays - Kruskal")        
         fig.tight_layout()
         
-        #ajustement de la figure avec les bonnes dimensions
-        plt.rcParams["figure.figsize"] = (60,15)
-                        
+        #ajustement de la figure avec les bonnes dimensions et affichage de l'arbre
+        plt.rcParams["figure.figsize"] = (60,15)                        
         plt.show()
         
         return valeur_retour
@@ -340,6 +341,7 @@ class tpDeuxGraphes:
             #rajout de l'item dans notre liste
             newArc=[src,dst,int(poids)]
             arcs.append(newArc)
+        
         #tri de la liste des arcs par poids croissant
         lstArcs = sorted(arcs, key=itemgetter(2))        
         
@@ -357,6 +359,7 @@ class tpDeuxGraphes:
             for i in range(len(lstArcs)):
                 #on récupère dans l'ensemble A des arcs ceux pour qui il y a un link avec nDebut
                 sousEnsemble = []
+                ############# A revoir
                 #if (lstArcs[i][0] == nDebut or lstArcs[i][1] == nDebut):
                 if (lstArcs[i][0] == nDebut):
                     sousEnsemble.append(lstArcs[i])
@@ -412,11 +415,15 @@ class tpDeuxGraphes:
     #Partie B-Q2 - Ecrire une fonction qui prend en entrée un graphe 
     #retourne le meilleur chemin (le plus court) entre deux villes (sans contraintes)
     def meilleurTrajetParDuree(self, G, noeud1, noeud2):
+        #parcours des arcs et détermination du poids sur la base de la durée du trajet
         for edge in G.edges():
             (src,dst) = edge
             duree = self.getDuree(src, dst)            
             netx.set_edge_attributes(G, int(duree), "duree")
+        #on sauvegarde les données du graphe G
         G.edges(data=True)
+        #on choisit le meilleur chemin entre noeud1 et noeud2 selon la méthode de Dijkstra 
+        #pondération sur la durée du trajet
         bestPath = netx.shortest_path(G, source=noeud1, target=noeud2, weight="duree", method="dijkstra")
         return bestPath 
     
@@ -424,11 +431,15 @@ class tpDeuxGraphes:
     #Partie B-Q3. Ecrire une fonction qui prend en entrée un graphe 
     #retourne le meilleur chemin (le moins cher) entre deux villes (sans contraintes)
     def meilleurTrajetParCout(self, G, noeud1, noeud2):
+        #idem parcours des arcs et identification du poids de chacun (cout + péage)
         for edge in G.edges():
             (src,dst) = edge
             cout = self.getCout(src, dst)            
             netx.set_edge_attributes(G, float(cout), "cout")
+        #sauvegarde données sur les ardcs
         G.edges(data=True)
+        #on choisit le meilleur chemin entre noeud1 et noeud2 selon la méthode de Dijkstra 
+        #pondération sur la durée du trajet
         bestPath = netx.shortest_path(G, source=noeud1, target=noeud2, weight="cout", method="dijkstra")
         return bestPath 
     
@@ -436,14 +447,20 @@ class tpDeuxGraphes:
     #Partie B-Q4. Ecrire une fonction qui prend en entrée un graphe 
     #retourne le meilleur chemin (le plus court) entre deux villes (sans passer par des autoroutes)
     def meilleurTrajetParDureeSansRunway(self, G, noeud1, noeud2):
+        #en cas d'échec d'identication de chemin, la fonction peut lever une exception
+        #on copie le graphe dans notre variable de travail
         try:
             G2 = G
+            #parcours des arcs du graphe de travail et identification du type de voie
             for edge in G2.edges():
                (src,dst) = edge
                tp = self.getTypeChemin(src, dst)
                if (tp == "a"):
                    G2.remove_edge(src, dst)
+            #sauvegarde données
             G2.edges(data=True)
+            #on choisit le meilleur chemin entre noeud1 et noeud2 selon la méthode de Dijkstra 
+            #pondération sur la durée du trajet
             bestPath = netx.shortest_path(G2, source=noeud1, target=noeud2, weight="duree", method="dijkstra")
             return bestPath 
         except netx.NetworkXNoPath:
@@ -453,6 +470,9 @@ class tpDeuxGraphes:
     #Partie B-Q5. Ecrire une fonction qui prend en entrée un graphe 
     #retourne le meilleur chemin (le moins cher) entre deux villes (sans passer par des départementales)
     def meilleurCheminParDureeSansDepartementale(self, G, noeud1, noeud2):
+        #même méthode que précédemment
+        #changement de contraintes: départementables uniquement
+        #changement de pondération: cout+péage
         try:
             G2 = G
             for edge in G2.edges():
@@ -482,16 +502,19 @@ class tpDeuxGraphes:
          cout = 0.0
          listeNoeuds = list(path)
          listeArcs = []
+         #parcours des noeuds du chemin à afficher
          for i in range(len(listeNoeuds)-1):
             s = listeNoeuds[i]
             d = listeNoeuds[i+1]
+            #pour chaque paire, on calcule la durée et le coût du trajet
             coutTroncon = float(self.getCout(s, d))
             dureeTroncon = int(self.getDuree(s, d))
+            #on les additionne à nos totaux
             cout = cout + coutTroncon
             duree = duree + dureeTroncon            
-            edge = [s,d]
-            listeArcs.append(edge)
-
+            #création d'un nouvel arc pour notre graphe et intégration de l'arc
+            edge = [s,d]            
+            listeArcs.append(edge)        
             H.add_edge(s, d, width=9.0)
          
          #on positionne l'arbre sur la carte de France
@@ -521,11 +544,11 @@ class tpDeuxGraphes:
 jpegFile = input("Donner le nom du fichier Jpeg: ")
 
 #Demande fichier CSV et stockage données dans les variables filename et positions
-print("Fournir le fichier CSV pour les positions des villes sur la carte \n")
+print("Fournir le fichier CSV pour les POSITIONS des villes sur la carte \n")
 (fPos, tbPos) = fctGetCsv.getCsv()
 
 #Demande fichier CSV et stockage données dans les variables filename et positions
-print("Fournir le fichier CSV pour les liaisons entre villes \n")
+print("Fournir le fichier CSV pour les LIAISONS entre villes \n")
 (fLiais, tbLiais) = fctGetCsv.getCsv()
 
 if (not jpegFile):
@@ -569,7 +592,7 @@ else:
             #Question 1 - Vérification si graphe connexe ou pas
             #Prend en entree un graphe
             #Retour: True si oui, False sinon
-            print("Vérification si graphe connexe - Travail sur la durée (1) ou le cout(2)")
+            print("Vérification si graphe connexe - Travailler sur la durée (1) ou le cout(2)")
             print("\n")
             option = int(input("Donner l'option 1 pour la durée et 2 pour le coût: "))
             if (int(option) == 1):
