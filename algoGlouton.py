@@ -12,3 +12,5 @@ def coloriageGlouton(graphe):
     #calcul degré le plus grand des sommets
     
     #identification couleurs possibles
+    
+    return 1

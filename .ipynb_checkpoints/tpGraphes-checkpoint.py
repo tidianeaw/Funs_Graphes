@@ -150,7 +150,7 @@ class tpGraphes:
         fig.tight_layout()
         
         #affichage final
-        plt.rcParams["figure.figsize"] = (60,30)
+        plt.rcParams["figure.figsize"] = (60,15)
         plt.show()
         
         return DG
@@ -234,7 +234,7 @@ class tpGraphes:
         netx.draw_networkx_edge_labels(G, pos, edge_labels=old_edge_labels,label_pos=0.5,font_color='red')
 
         plt.title("Taches par niveau")
-        plt.rcParams["figure.figsize"] = (60,30)
+        plt.rcParams["figure.figsize"] = (60,15)
         plt.show()
         
         
@@ -251,22 +251,20 @@ class tpGraphes:
     #question 5 - calcul marges et battement
     def computeMarginAndFlapping(self, G):
         print("Question 5")
-
+    
         #initialisations
         dates_battement = dict()
-        dates_battement["Debut"] = (0,0,0)
-        #structure dictionnaire: clé=tache - valeur=(fin plus tot - fin plus tard - battement)
-                        
+        #structure dictionnaire: clé=noeud - valeur=(fin plus tot - fin plus tard - battement)
         nodes = list(G.nodes)
-        duree_projet = 0
 
         #parcours noeuds et calcul dates fin au plus tôt
         for i in range(len(nodes)):
             #pour chaque noeud calcul de la date de fin au plus tôt
             earliest_date = 0
+            battement = 0
             
             noeud_en_cours = nodes[i]
-        
+            
             #noeuds sur un arc entrant vers le noeud en cours
             incoming_nodes = list(G.predecessors(noeud_en_cours))
             
@@ -291,90 +289,48 @@ class tpGraphes:
                 #clé = tache en cours
                 #valeur = [date fin au plus tôt, date fin au plus tard, battement]
                 dates_battement[noeud_en_cours] = [earliest_date, 0, 0]
-        
-                duree_projet = earliest_date
-                
-        #inversion liste
-        datesBtm = reversed(dates_battement)
-        for db in datesBtm:
-            if (str(db) == 'Fin'):
-                dates_battement[db] = (duree_projet, duree_projet, 0)
-            else:
-                if (str(db) == 'Debut'):
-                    dates_battement[db] = (0, 0, 0)
-                else:                    
-                    #on examine les successeurs: on prend le plus contraignant
-                    fplustard = duree_projet
-                    successors = list(G.successors(db))
-            
-                    for i in range(len(successors)):
-                        #fin au plus du successeur
-                        fin_plus_tard_s = dates_battement[successors[i]][1]
-                        #delai du successeur
-                        for s in range(len(self.listeTaches)):
-                            if (self.listeTaches[s][0] == successors[i]):
-                                delai_s = self.listeTaches[s][1]
-                                fpt = int(fin_plus_tard_s) - int(delai_s)
-                                #on prend la plus petite valeur pour l'affecter à fin au plus tard
-                                if fpt < fplustard:
-                                    fplustard = fpt
-                    dates_battement[db][1] = fplustard
-                    dates_battement[db][2] = dates_battement[db][1] - dates_battement[db][0]            
-                                    
-        print(dates_battement)
-        print("######################")
-            
-                
-        
-        # #parcours inverse noeuds pour le calcul de la date de fin au plus tard
-        # for w in nodes:
-        #     #si on est sur le noeud Début, rien à faire - Tout est à 0
-        #     if (str(w) == 'Debut'):
-        #         dates_battement['Debut'] = [0,0,0]
-        #     else:
-        #         #on est sur une tache réelle
-        #         #les données = valeurs (Fin au + tot, Fin au plus tard, Battement)
-        #         data_en_cours = dates_battement[w]
-        #         #stockage de l'info fin au plus tot
-        #         fin_plus_tot = data_en_cours[0]
-        #         fin_plus_tard0 = fin_plus_tot
-        #         fin_plus_tard = fin_plus_tard0
-                
-        #         #on regarde les taches suivantes
-        #         suivantes = list(G.successors(w))
-        #         if (len(suivantes) == 0):
-        #             #on est sur la tache fin de projet donc Fin +tot = Fin +tard
-        #             fin_plus_tard = fin_plus_tot
-        #             #battement = 0
-        #             battement = fin_plus_tard - fin_plus_tot
-        #             #on actualise le dictionnaire
-        #             dates_battement[w] = [fin_plus_tot, fin_plus_tard, battement]
-        #         else:
-        #             #on est sur une tache réelle
-        #             print("Suivantes: ")
-        #             print(suivantes)
-        #             print("\n")
-        #             battement = 0
-        #             for m in range(len(suivantes)):                        
-        #                 #on initialise fin au plus tard
-        #                 fin_plus_tard = fin_plus_tot
-        #                 #on récupère les données de l'arc associé a la tache w et sa suivante considérée
-        #                 edge_data = G.get_edge_data(w, suivantes[m])
-        #                 delai = int(edge_data['label'])
-        #                 #on recalcule le délai de fin au plus tard
-        #                 fin_plus_tard = dates_battement[suivantes[m]][0] - delai
-        #                 #on prend la plus petite valeur (cf méthode vue en cours)
-        #                 if (fin_plus_tard <= fin_plus_tard0):
-        #                     fin_plus_tard0 = fin_plus_tard
-        #                 #on actualise le dictionnaire après calcul du battement 
-        #             battement = fin_plus_tard - fin_plus_tot
-        #             dates_battement[w] = [fin_plus_tot, fin_plus_tard, battement]
-                
-        #         print(w)
-        #         print(dates_battement[w])
 
-        #print("Dates battement par tâche")
-        #print(dates_battement)
+
+        #parcours inverse noeuds pour le calcul de la date de fin au plus tard
+        for w in reversed(nodes):
+            #si on est sur le noeud Début, rien à faire - Tout est à 0
+            if (str(w) == 'Debut'):
+                dates_battement['Debut'] = [0,0,0]
+            else:
+                #on est sur une tache réelle
+                #les données = valeurs (Fin au + tot, Fin au plus tard, Battement)
+                data_en_cours = dates_battement[w]
+                #stockage de l'info fin au plus tot
+                fin_plus_tot = data_en_cours[0]
+                
+                #on regarde les taches suivantes
+                suivantes = list(G.successors(w))
+                if (len(suivantes) == 0):
+                    #on est sur la tache fin de projet donc Fin +tot = Fin +tard
+                    fin_plus_tard = fin_plus_tot
+                    #battement = 0
+                    battement = fin_plus_tard - fin_plus_tot
+                    #on actualise le dictionnaire
+                    dates_battement[w] = [fin_plus_tot, fin_plus_tard, battement]
+                else:
+                    #on est sur une tache réelle
+                    for m in range(len(suivantes)):
+                        #on initialise fin au plus tard
+                        fin_plus_tard = fin_plus_tot
+                        #on récupère les données de l'arc associé a la tache w et sa suivante considérée
+                        edge_data = G.get_edge_data(w, suivantes[m])
+                        delai = int(edge_data['label'])
+                        #on recalcule le délai de fin au plus tard
+                        delai = dates_battement[suivantes[m]][1] - delai
+                        #on prend la plus petite valeur (cf méthode vue en cours)
+                        if (delai > fin_plus_tard):
+                            fin_plus_tard = delai
+                        #on actualise le dictionnaire après calcul du battement 
+                        battement = fin_plus_tard - fin_plus_tot
+                        dates_battement[w] = [fin_plus_tot, fin_plus_tard, battement]
+
+        print("Dates battement par tâche")
+        print(dates_battement)
         print("\n")
         return (dates_battement)
     

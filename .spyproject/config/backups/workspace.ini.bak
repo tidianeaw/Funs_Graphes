@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['fctGetCsv.py', 'tpGraphes.py', 'tpDeuxGraphes.py', '..\\..\\..\\Python311\\Lib\\site-packages\\networkx\\drawing\\nx_pylab.py', '..\\..\\..\\Python311\\Lib\\site-packages\\networkx\\classes\\graph.py', 'checkCol.py']
+recent_files = ['algoGlouton.py', 'flots.py', 'fctGetCsv.py', 'tpGraphes.py', 'tpDeuxGraphes.py', 'exam_A.csv']
 
 [main]
 version = 0.2.0
